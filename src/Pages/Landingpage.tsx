@@ -21,7 +21,7 @@ const items = [
     description:
       "Staple grains that complete every meal. Perfect for daily cooking or a quick pasta dish.",
     price: "$12.99",
-    category: "Grains"
+    category: "Grains",
   },
   {
     image: Oil,
@@ -29,7 +29,7 @@ const items = [
     description:
       "Healthy and versatile cooking oils. Ideal for frying, sautéing, and baking.",
     price: "$8.99",
-    category: "Cooking Essentials"
+    category: "Cooking Essentials",
   },
   {
     image: Cheese,
@@ -37,7 +37,7 @@ const items = [
     description:
       "Premium cheeses loved worldwide. Add rich flavor to pasta, pizza, and more.",
     price: "$15.99",
-    category: "Dairy"
+    category: "Dairy",
   },
   {
     image: CannedProducts,
@@ -45,7 +45,7 @@ const items = [
     description:
       "Convenient and tasty pantry essentials. Quick solutions for easy meals.",
     price: "$3.99",
-    category: "Pantry"
+    category: "Pantry",
   },
   {
     image: Cake,
@@ -53,7 +53,7 @@ const items = [
     description:
       "Convenient and tasty pantry essentials. Quick solutions for easy meals.",
     price: "$24.99",
-    category: "Bakery"
+    category: "Bakery",
   },
 ];
 
@@ -118,21 +118,29 @@ function Landingpage() {
   };
 
   function getItemTransform(progress, index) {
-    const maxMoves = [300, 300, 200, 300, 320];
-    const translateY = -Math.round(progress * maxMoves[index]);
+  // Fixed positions for perfect alignment
+  const positions = [
+    { x: 50, y: -350 },    // Top-center
+    { x: -80, y: -200 }, // Middle left
+    { x: 50, y: -180 },  // Middle right  
+    { x: -130, y: -40 },  // Bottom left
+    { x: 10, y: -70 }    // Bottom right
+  ];
+  
+  const pos = positions[index];
+  
+  // Direct translation without complex calculations
+  const translateX = pos.x * progress;
+  const translateY = pos.y * progress;
 
-    const horizontalMoves = [-80, -40, 0, 60, 100];
-    const translateX = progress * horizontalMoves[index];
+  // Minimal consistent swing
+  const swing = Math.sin(swingProgress * 10) * 1.5;
 
-    const swingSpeeds = [15.0, 15.5, 15.8, 15.3, 15.6];
-    const swingRange = 2;
-    const swing = Math.sin(swingProgress * swingSpeeds[index]) * swingRange;
+  // Consistent scaling
+  const scale = 1.0 + progress * 0.2;
 
-    const scales = [1.1, 1.15, 1.12, 1.08, 1.14];
-    const scale = scales[index] + progress * 0.1;
-
-    return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
-  }
+  return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
+}
 
   function getHeaderTransform(progress) {
     const maxMove = 200;
@@ -152,7 +160,11 @@ function Landingpage() {
         {/* Header */}
         <div style={mobileDetailHeader}>
           <button onClick={onBack} style={mobileBackButton}>
-            <img src={Down} alt="back" style={{ width: 20, transform: "rotate(90deg)" }} />
+            <img
+              src={Down}
+              alt="back"
+              style={{ width: 20, transform: "rotate(90deg)" }}
+            />
           </button>
           <div style={mobileDetailTitle}>Product Details</div>
           <div style={{ width: 40 }} />
@@ -163,31 +175,23 @@ function Landingpage() {
           <img src={item.image} alt={item.title} style={mobileDetailImage} />
         </div>
 
-        {/* Item Info */}
-        <div style={mobileDetailInfo}>
-          <h2 style={mobileDetailItemTitle}>{item.title}</h2>
-          <p style={mobileDetailCategory}>{item.category}</p>
-          <p style={mobileDetailDescription}>{item.description}</p>
-          <div style={mobileDetailPrice}>{item.price}</div>
-          
-          <button style={mobileAddToCartButton}>
-            Add to Cart
-          </button>
-        </div>
-
         {/* Other Products Section */}
         <div style={mobileOtherProducts}>
           <h3 style={mobileOtherProductsTitle}>You might also like</h3>
           <div style={mobileProductsGrid}>
             {items
-              .filter(i => i.title !== item.title)
+              .filter((i) => i.title !== item.title)
               .map((otherItem, index) => (
                 <div
                   key={index}
                   style={mobileProductCard}
                   onClick={() => onItemClick(otherItem)}
                 >
-                  <img src={otherItem.image} alt={otherItem.title} style={mobileProductImage} />
+                  <img
+                    src={otherItem.image}
+                    alt={otherItem.title}
+                    style={mobileProductImage}
+                  />
                   <div style={mobileProductInfo}>
                     <h4 style={mobileProductTitle}>{otherItem.title}</h4>
                     <p style={mobileProductPrice}>{otherItem.price}</p>
@@ -521,7 +525,7 @@ function Landingpage() {
   if (isMobile) {
     if (mobileSelectedItem) {
       return (
-        <MobileItemDetail 
+        <MobileItemDetail
           item={mobileSelectedItem}
           onBack={() => setMobileSelectedItem(null)}
           onItemClick={setMobileSelectedItem}
@@ -535,7 +539,12 @@ function Landingpage() {
       <div style={mobileWrapper} className="max-h-screen">
         <div style={mobileTopBar}>
           <img src={menuIcon} alt="menu" style={{ width: 22 }} />
-          <img src={logo} alt="logo" style={{ width: 120 }} className="hidden md:block" />
+          <img
+            src={logo}
+            alt="logo"
+            style={{ width: 120 }}
+            className="hidden md:block"
+          />
           <img src={SearchIcon} alt="search" style={{ width: 18 }} />
         </div>
 
@@ -545,28 +554,38 @@ function Landingpage() {
             <br />
             FRESHNESS
           </div>
-          <div style={{ ...mobileExplore, ...headerTransform }}>Explore now</div>
-          <img src={Down} alt="down" style={{ ...mobileDownStyle, ...headerTransform }} />
+          <div style={{ ...mobileExplore, ...headerTransform }}>
+            Explore now
+          </div>
+          <img
+            src={Down}
+            alt="down"
+            style={{ ...mobileDownStyle, ...headerTransform }}
+          />
         </div>
 
         <div style={basketArea}>
-          <div style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-          }}>
-            <div style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
               height: "100%",
-              pointerEvents: "none",
-              zIndex: 1,
-            }}>
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: "100%",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            >
               {[Oil, Rice, Cake, Cheese, CannedProducts].map((imgSrc, idx) => {
                 const pos = basketItemPositions[idx] || basketItemPositions[0];
                 const item = items[idx];
@@ -585,10 +604,10 @@ function Landingpage() {
                   pointerEvents: animationProgress > 0.5 ? "auto" : "none",
                 };
                 return (
-                  <img 
-                    key={idx} 
-                    src={imgSrc} 
-                    alt="" 
+                  <img
+                    key={idx}
+                    src={imgSrc}
+                    alt=""
                     style={style}
                     onClick={() => {
                       if (animationProgress > 0.5) {
@@ -612,19 +631,21 @@ function Landingpage() {
               }}
             />
 
-            <div style={{
-              position: "absolute",
-              bottom: 20,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: 16,
-              height: 16,
-              background: "#ffffff",
-              borderRadius: 999,
-              boxShadow: "0 3px 10px rgba(0,0,0,0.15)",
-              zIndex: 5,
-              opacity: 0.8 + 0.2 * animationProgress,
-            }} />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 20,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 16,
+                height: 16,
+                background: "#ffffff",
+                borderRadius: 999,
+                boxShadow: "0 3px 10px rgba(0,0,0,0.15)",
+                zIndex: 5,
+                opacity: 0.8 + 0.2 * animationProgress,
+              }}
+            />
           </div>
         </div>
       </div>
@@ -635,9 +656,25 @@ function Landingpage() {
   return (
     <div style={landingPageStyle}>
       <img src={logo} alt="Logo" style={logoStyle} />
-      <div style={{ position: "absolute", top: 28, right: 40, display: "flex", gap: 20 }}>
-        <img src={SearchIcon} alt="Search" style={{ width: 24, cursor: "pointer" }} />
-        <img src={menuIcon} alt="Menu" style={{ width: 24, cursor: "pointer" }} />
+      <div
+        style={{
+          position: "absolute",
+          top: 28,
+          right: 40,
+          display: "flex",
+          gap: 20,
+        }}
+      >
+        <img
+          src={SearchIcon}
+          alt="Search"
+          style={{ width: 24, cursor: "pointer" }}
+        />
+        <img
+          src={menuIcon}
+          alt="Menu"
+          style={{ width: 24, cursor: "pointer" }}
+        />
       </div>
 
       {!selectedItem && (
@@ -645,7 +682,9 @@ function Landingpage() {
           <h1 style={headingStyle}>Flavor Meets</h1>
           <h1 style={headingStyle}>Freshness</h1>
           <div style={subheadingStyle}>
-            <p>Discover a wide range of delicious food products made with love</p>
+            <p>
+              Discover a wide range of delicious food products made with love
+            </p>
             <p>and quality ingredients. Taste freshness in every bite.</p>
             <p>Find your favorite and treat yourself today.</p>
           </div>
@@ -669,46 +708,178 @@ function Landingpage() {
       {selectedItem && (
         <div style={selectedLayoutWrapper}>
           <div style={bigImageContainer}>
-            <h2 style={{ fontSize: "2.2rem", marginBottom: 10, textAlign: "left" }}>
+            <h2
+              style={{
+                fontSize: "2.2rem",
+                marginBottom: 10,
+                textAlign: "left",
+              }}
+            >
               {selectedItem.title}
             </h2>
             <p style={{ maxWidth: 400, fontSize: "1rem", lineHeight: 1.6 }}>
               {selectedItem.description}
             </p>
-            <img src={selectedItem.image} alt={selectedItem.title} style={bigImageStyle} />
+            <img
+              src={selectedItem.image}
+              alt={selectedItem.title}
+              style={bigImageStyle}
+            />
           </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "row", gap: 30, marginTop: 40 }}>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 60, paddingTop: 60 }}>
-              {items.filter((i) => i.title !== selectedItem.title).filter((_, idx) => idx % 2 === 0).map((item, index) => (
-                <div key={index} onClick={() => setSelectedItem(item)} style={{
-                  width: "100%", height: 200, borderRadius: 30, background: "#fff", padding: "30px 20px",
-                  position: "relative", boxShadow: "0 15px 30px rgba(0,0,0,0.1)", cursor: "pointer",
-                }}>
-                  <img src={item.image} alt={item.title} style={{ width: 110, position: "absolute", top: -40, left: 50 }} />
-                  <div style={{ marginTop: 40 }}>
-                    <h3 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 600 }}>{item.title}</h3>
-                    <p style={{ margin: "6px 0", color: "#555", fontSize: "1rem" }}>Mix Vegetables</p>
-                    <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>$24.00</h3>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "row",
+              gap: 30,
+              marginTop: 40,
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 60,
+                paddingTop: 60,
+              }}
+            >
+              {items
+                .filter((i) => i.title !== selectedItem.title)
+                .filter((_, idx) => idx % 2 === 0)
+                .map((item, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedItem(item)}
+                    style={{
+                      width: "100%",
+                      height: 200,
+                      borderRadius: 30,
+                      background: "#fff",
+                      padding: "30px 20px",
+                      position: "relative",
+                      boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        width: 110,
+                        position: "absolute",
+                        top: -40,
+                        left: 50,
+                      }}
+                    />
+                    <div style={{ marginTop: 40 }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: "1.3rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p
+                        style={{
+                          margin: "6px 0",
+                          color: "#555",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        Mix Vegetables
+                      </p>
+                      <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>
+                        $24.00
+                      </h3>
+                    </div>
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 20,
+                        right: 20,
+                        fontSize: 22,
+                      }}
+                    >
+                      🤍
+                    </span>
                   </div>
-                  <span style={{ position: "absolute", bottom: 20, right: 20, fontSize: 22 }}>🤍</span>
-                </div>
-              ))}
+                ))}
             </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 60, paddingBottom: 0 }}>
-              {items.filter((i) => i.title !== selectedItem.title).filter((_, idx) => idx % 2 === 1).map((item, index) => (
-                <div key={index} onClick={() => setSelectedItem(item)} style={{
-                  width: "100%", height: 200, borderRadius: 30, background: "#fff", padding: "30px 20px",
-                  position: "relative", boxShadow: "0 15px 30px rgba(0,0,0,0.1)", cursor: "pointer",
-                }}>
-                  <img src={item.image} alt={item.title} style={{ width: 110, position: "absolute", top: -40, left: 50 }} />
-                  <div style={{ marginTop: 40 }}>
-                    <h3 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 600 }}>{item.title}</h3>
-                    <p style={{ margin: "6px 0", color: "#555", fontSize: "1rem" }}>Mix Vegetables</p>
-                    <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>$24.00</h3>
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 60,
+                paddingBottom: 0,
+              }}
+            >
+              {items
+                .filter((i) => i.title !== selectedItem.title)
+                .filter((_, idx) => idx % 2 === 1)
+                .map((item, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedItem(item)}
+                    style={{
+                      width: "100%",
+                      height: 200,
+                      borderRadius: 30,
+                      background: "#fff",
+                      padding: "30px 20px",
+                      position: "relative",
+                      boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{
+                        width: 110,
+                        position: "absolute",
+                        top: -40,
+                        left: 50,
+                      }}
+                    />
+                    <div style={{ marginTop: 40 }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: "1.3rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p
+                        style={{
+                          margin: "6px 0",
+                          color: "#555",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        Mix Vegetables
+                      </p>
+                      <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>
+                        $24.00
+                      </h3>
+                    </div>
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 20,
+                        right: 20,
+                        fontSize: 22,
+                      }}
+                    >
+                      🤍
+                    </span>
                   </div>
-                  <span style={{ position: "absolute", bottom: 20, right: 20, fontSize: 22 }}>🤍</span>
-                </div>
-              ))}
+                ))}
               <button onClick={() => setSelectedItem(null)}>
                 <img style={{ width: 50, marginLeft: 50 }} src={Down} />
               </button>
