@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import bgImage from "../assets/landing-bg.svg";
 import logo from "../assets/logo.svg";
 import menuIcon from "../assets/hamburger.svg";
@@ -9,7 +9,10 @@ import Oil from "../assets/oil.png";
 import Cheese from "../assets/cheese.png";
 import CannedProducts from "../assets/tin-can.png";
 import Cake from "../assets/cake.png";
-import Down from "../assets/downArrow.png";
+import Down from "../assets/downArrow2.png";
+
+import Basket from "../assets/basket.png";
+import SearchIcon from "../assets/search-icon.png";
 
 const items = [
   {
@@ -46,8 +49,100 @@ const items = [
 
 function Landingpage() {
   const [selectedItem, setSelectedItem] = useState(null);
+  const [swingProgress, setSwingProgress] = useState(0);
 
-  // ---------- Styles ----------
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth <= 768 : false
+  );
+  const [animationProgress, setAnimationProgress] = useState(0); // Changed from scrollProgress
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isAnimatedState, setIsAnimatedState] = useState(false); // Track animation state
+
+  useEffect(() => {
+    function onResize() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+    window.addEventListener("resize", onResize);
+    onResize();
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSwingProgress((prev) => prev + 0.01);
+    }, 16); // ~60fps
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleDotClick = () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+
+    // Toggle animation state
+    const targetProgress = isAnimatedState ? 0 : 1;
+
+    // Animate to target progress - FASTER DURATION
+    const duration = 400; // Reduced from 600ms to 400ms
+    const startTime = Date.now();
+    const startProgress = animationProgress;
+
+    const animate = () => {
+      const currentTime = Date.now();
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Ease out function for smooth animation
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+
+      const currentAnimationProgress =
+        startProgress + (targetProgress - startProgress) * easeOut;
+      setAnimationProgress(currentAnimationProgress);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setIsAnimating(false);
+        setIsAnimatedState(!isAnimatedState);
+      }
+    };
+
+    animate();
+  };
+
+  // Items animation - scatter to different places with individual movements
+  function getItemTransform(progress, index) {
+    const maxMoves = [300, 300, 200, 300, 320];
+    const translateY = -Math.round(progress * maxMoves[index]);
+
+    // Much wider horizontal scattering
+    const horizontalMoves = [-80, -40, 0, 60, 100];
+    const translateX = progress * horizontalMoves[index];
+
+    // EXTREMELY FAST continuous swing animation
+    const swingSpeeds = [15.0, 15.5, 15.8, 15.3, 15.6]; // Much faster speeds
+    const swingRange = 2;
+    const swing = Math.sin(swingProgress * swingSpeeds[index]) * swingRange;
+
+    // Reduced scales to fit inside basket better
+    const scales = [1.1, 1.15, 1.12, 1.08, 1.14];
+    const scale = scales[index] + progress * 0.1;
+
+    return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
+  }
+  // Header animation - moving up and fading out
+  function getHeaderTransform(progress) {
+    const maxMove = 200; // Increased from 150 to 200
+    const translateY = -Math.round(progress * maxMove);
+    const opacity = Math.max(0, 1 - progress * 1.5);
+
+    return {
+      transform: `translateY(${translateY}px)`,
+      opacity: opacity,
+    };
+  }
+
+  // ---------- DESKTOP STYLES (unchanged) ----------
   const landingPageStyle = {
     width: "100%",
     minHeight: "100vh",
@@ -91,13 +186,6 @@ function Landingpage() {
     top: 16,
     left: 16,
     width: 160,
-  };
-
-  const menuIconStyle = {
-    position: "absolute",
-    top: 28,
-    right: 40,
-    width: 40,
   };
 
   const scrollContainerStyle = {
@@ -148,34 +236,232 @@ function Landingpage() {
     marginBottom: 30,
   };
 
-  const smallItemsContainer = {
-    flex: 1,
+  // ---------- MOBILE STYLES ----------
+  const mobileWrapper = {
+    width: "100%",
+    minHeight: "100vh",
+    background: "#f7ecbf",
+    position: "relative",
+    padding: "12px 18px 0",
+    boxSizing: "border-box",
+    overflow: "hidden",
     display: "flex",
     flexDirection: "column",
-    // gap: 20,
   };
 
-  const smallItemCard = {
-    background: "#ffffff",
-    padding: "14px 20px",
-    borderRadius: 16,
+  const mobileTopBar = {
     display: "flex",
-    flexDirection: "column",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 14,
-    boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
-    cursor: "pointer",
+    paddingTop: 6,
   };
 
-  const smallImageStyle = {
-    width: 60,
+  const mobileTitle = {
+    fontFamily: "Aboreto, sans-serif",
+    fontSize: 32,
+    marginTop: 36,
+    lineHeight: 1.05,
+    letterSpacing: 1,
+    color: "#211915",
+    textAlign: "center",
+    fontWeight: "900",
+    transition: "transform 0.8s ease-out, opacity 0.8s ease-out",
+  };
+
+  const mobileExplore = {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#6b6b6b",
+    fontWeight: 500,
+    textAlign: "center",
+    transition: "transform 0.8s ease-out, opacity 0.8s ease-out",
+  };
+
+  const mobileDownStyle = {
+    width: 28,
+    marginTop: 8,
+    opacity: 0.95,
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+    transition: "transform 0.8s ease-out, opacity 0.8s ease-out",
+  };
+
+  const basketArea = {
+    flex: 1,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    position: "relative",
+    marginTop: 20,
+    paddingBottom: 40,
+  };
+
+  const basketImageStyle = {
+    width: "100%",
+    maxWidth: 400,
     height: "auto",
+    display: "block",
+    position: "relative",
+    zIndex: 2,
   };
 
+  // Positions for items inside basket
+  const basketItemPositions = [
+    { left: "10%", bottom: "42%", width: 120, zIndex: 3 }, // oil
+    { left: "20%", bottom: "50%", width: 120, zIndex: 4 }, // rice
+    { left: "46%", bottom: "54%", width: 120, zIndex: 3 }, // cake
+    { left: "40%", bottom: "48%", width: 120, zIndex: 4 }, // cheese
+    { left: "56%", bottom: "38%", width: 120, zIndex: 3 }, // canned
+  ];
+
+  // ---------------- RENDER ----------------
+  if (isMobile) {
+    const headerTransform = getHeaderTransform(animationProgress);
+
+    return (
+      <div style={mobileWrapper} className="max-h-screen">
+        {/* top bar */}
+        <div style={mobileTopBar}>
+          <img src={menuIcon} alt="menu" style={{ width: 22 }} />
+          <img
+            src={logo}
+            alt="logo"
+            style={{ width: 120 }}
+            className="hidden md:block"
+          />
+          <img src={SearchIcon} alt="search" style={{ width: 18 }} />
+        </div>
+
+        {/* headings with animation */}
+        <div style={{ textAlign: "center", flexShrink: 0 }}>
+          <div style={{ ...mobileTitle, ...headerTransform }}>
+            FLAVOUR MEET
+            <br />
+            FRESHNESS
+          </div>
+
+          <div style={{ ...mobileExplore, ...headerTransform }}>
+            Explore now
+          </div>
+          <img
+            src={Down}
+            alt="down"
+            style={{ ...mobileDownStyle, ...headerTransform }}
+          />
+        </div>
+
+        {/* basket + animated items */}
+        <div style={basketArea}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            {/* Animated items with subtle rotation */}
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: "100%",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            >
+              {[Oil, Rice, Cake, Cheese, CannedProducts].map((imgSrc, idx) => {
+                const pos = basketItemPositions[idx] || basketItemPositions[0];
+                const style = {
+                  position: "absolute",
+                  left: pos.left,
+                  bottom: pos.bottom,
+                  width: pos.width,
+                  transform: getItemTransform(animationProgress, idx),
+                  transition: "transform 0.8s ease-out, opacity 0.8s ease-out",
+                  transformOrigin: "center bottom",
+                  userSelect: "none",
+                  zIndex: pos.zIndex,
+                  opacity: 0.8 + 0.2 * (1 - animationProgress * 0.5),
+                };
+                return <img key={idx} src={imgSrc} alt="" style={style} />;
+              })}
+            </div>
+
+            {/* Basket image - STATIC (no animation) */}
+            <img
+              src={Basket}
+              alt="basket"
+              style={{
+                ...basketImageStyle,
+                position: "relative",
+                zIndex: 2,
+              }}
+            />
+
+            {/* Clickable Page indicator dot */}
+            <div
+              onClick={handleDotClick}
+              style={{
+                position: "absolute",
+                bottom: 20,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 16,
+                height: 16,
+                background: "#ffffff",
+                borderRadius: 999,
+                boxShadow: "0 3px 10px rgba(0,0,0,0.15)",
+                zIndex: 5,
+                cursor: "pointer",
+                transition: "transform 0.3s ease, opacity 0.3s ease",
+                opacity: 0.8 + 0.2 * animationProgress,
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = "translateX(-50%) scale(1.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = "translateX(-50%) scale(1)";
+              }}
+            />
+          </div>
+        </div>
+
+        {/* REMOVED: Extra scroll space since we don't need scrolling */}
+      </div>
+    );
+  }
+
+  // ---------- DESKTOP (EXACTLY AS BEFORE - UNCHANGED) ----------
   return (
     <div style={landingPageStyle}>
       <img src={logo} alt="Logo" style={logoStyle} />
-      <img src={menuIcon} alt="Menu" style={menuIconStyle} />
+      <div
+        style={{
+          position: "absolute",
+          top: 28,
+          right: 40,
+          display: "flex",
+          gap: 20,
+        }}
+      >
+        <img
+          src={SearchIcon}
+          alt="Search"
+          style={{ width: 24, cursor: "pointer" }}
+        />
+        <img
+          src={menuIcon}
+          alt="Menu"
+          style={{ width: 24, cursor: "pointer" }}
+        />
+      </div>
 
       {!selectedItem && (
         <div style={contentStyle}>
@@ -190,7 +476,6 @@ function Landingpage() {
             <p>Find your favorite and treat yourself today.</p>
           </div>
 
-          {/* Scrollable cards */}
           <div style={scrollContainerStyle}>
             <div style={{ display: "inline-flex", alignItems: "flex-start" }}>
               {items.map((item, index) => (
@@ -247,8 +532,8 @@ function Landingpage() {
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
-                gap: 60, // increased gap for better vertical spacing
-                paddingTop: 60, // start shifted DOWN (big enough for stagger)
+                gap: 60,
+                paddingTop: 60,
               }}
             >
               {items
@@ -269,7 +554,6 @@ function Landingpage() {
                       cursor: "pointer",
                     }}
                   >
-                    {/* Floating image */}
                     <img
                       src={item.image}
                       alt={item.title}
@@ -280,8 +564,6 @@ function Landingpage() {
                         left: 50,
                       }}
                     />
-
-                    {/* Title + Subtitle */}
                     <div style={{ marginTop: 40 }}>
                       <h3
                         style={{
@@ -305,8 +587,6 @@ function Landingpage() {
                         $24.00
                       </h3>
                     </div>
-
-                    {/* Heart Icon */}
                     <span
                       style={{
                         position: "absolute",
@@ -327,8 +607,8 @@ function Landingpage() {
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
-                gap: 60, // same gap here
-                paddingBottom: 0, // start shifted UP (push bottom space instead of translate)
+                gap: 60,
+                paddingBottom: 0,
               }}
             >
               {items
@@ -349,7 +629,6 @@ function Landingpage() {
                       cursor: "pointer",
                     }}
                   >
-                    {/* Floating Image */}
                     <img
                       src={item.image}
                       alt={item.title}
@@ -360,8 +639,6 @@ function Landingpage() {
                         left: 50,
                       }}
                     />
-
-                    {/* Title + Subtitle */}
                     <div style={{ marginTop: 40 }}>
                       <h3
                         style={{
@@ -385,8 +662,6 @@ function Landingpage() {
                         $24.00
                       </h3>
                     </div>
-
-                    {/* Heart Icon */}
                     <span
                       style={{
                         position: "absolute",
@@ -399,10 +674,8 @@ function Landingpage() {
                     </span>
                   </div>
                 ))}
-              <button
-                onClick={() => setSelectedItem(null)}
-              >
-                <img style={{width: 50, marginLeft: 50}} src={Down}/>
+              <button onClick={() => setSelectedItem(null)}>
+                <img style={{ width: 50, marginLeft: 50 }} src={Down} />
               </button>
             </div>
           </div>
