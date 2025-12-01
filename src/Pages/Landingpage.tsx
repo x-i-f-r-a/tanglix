@@ -117,22 +117,22 @@ function Landingpage() {
   };
 
   function getItemTransform(progress, index) {
-  const positions = [
-    { x: 80, y: -350 },    // Top-center
-    { x: -80, y: -200 }, // Middle left
-    { x: 50, y: -180 },  // Middle right  
-    { x: -130, y: -40 },  // Bottom left
-    { x: 10, y: -70 }    // Bottom right
-  ];
-  
-  const pos = positions[index];
-  const translateX = pos.x * progress;
-  const translateY = pos.y * progress;
-  const swing = Math.sin(swingProgress * 10) * 1.5;
-  const scale = 1.0 + progress * 0.2;
+    const positions = [
+      { x: 80, y: -350 }, // Top-center
+      { x: -80, y: -200 }, // Middle left
+      { x: 50, y: -180 }, // Middle right
+      { x: -130, y: -40 }, // Bottom left
+      { x: 10, y: -70 }, // Bottom right
+    ];
 
-  return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
-}
+    const pos = positions[index];
+    const translateX = pos.x * progress;
+    const translateY = pos.y * progress;
+    const swing = Math.sin(swingProgress * 10) * 1.5;
+    const scale = 1.0 + progress * 0.2;
+
+    return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
+  }
 
   function getHeaderTransform(progress) {
     const maxMove = 200;
@@ -691,22 +691,23 @@ function Landingpage() {
           flex: 1,
           display: "flex",
           flexDirection: "row",
+          gap: 30,
           marginTop: 40,
           position: "relative",
         }}
       >
-        {/* Simple scrollable grid container */}
+        {/* Single container with two columns but staggered items */}
         <div
           className="scrollable-column"
           style={{
             flex: 1,
             display: "grid",
-            gridTemplateColumns: "calc(50% - 15px) calc(50% - 15px)",
+            gridTemplateColumns: "1fr 1fr", // Two equal columns
             gap: "30px 30px",
             paddingTop: 60,
             paddingLeft: 20,
             paddingRight: 20,
-            paddingBottom: 80, // Extra padding for back button
+            paddingBottom: 80, 
             maxHeight: "calc(100vh - 200px)",
             overflowY: "auto",
             scrollbarWidth: "none",
@@ -725,15 +726,12 @@ function Landingpage() {
               const itemCenter = itemRect.top + (itemRect.height / 2);
               const distanceFromCenter = Math.abs(itemCenter - containerCenter);
               const maxDistance = containerRect.height / 2;
-              
-              // Simple scale effect
               const scale = 1 - (distanceFromCenter / maxDistance) * 0.1;
               
               item.style.transform = `scale(${Math.max(scale, 0.9)})`;
             });
           }}
         >
-          {/* Hide scrollbar for Chrome/Safari */}
           <style>
             {`
               .scrollable-column::-webkit-scrollbar {
@@ -742,12 +740,19 @@ function Landingpage() {
             `}
           </style>
           
-          {/* All items in a grid - duplicates included */}
+          {/* All items in a grid with staggered vertical positioning */}
           {[...items, ...items, ...items]
             .filter((i) => i.title !== selectedItem.title)
             .map((item, index) => {
-              // Staggered animation
               const animationDelay = 0.4 + Math.min(index * 0.05, 0.6);
+              
+              // Check if item should be in right column (odd index)
+              const isRightColumn = index % 2 === 1;
+              
+              // Apply negative margin-top to right column items to stagger them
+              const staggerStyle = isRightColumn ? {
+                marginTop: "-30px", // Pull right column items up
+              } : {};
               
               return (
                 <div
@@ -768,6 +773,7 @@ function Landingpage() {
                     animation: `slideInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${animationDelay}s forwards`,
                     border: "1px solid rgba(0,0,0,0.05)",
                     transition: "transform 0.3s ease",
+                    ...staggerStyle, // Apply the stagger style
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "scale(1.05)";
@@ -828,7 +834,6 @@ function Landingpage() {
               );
             })}
           
-          {/* CSS animations */}
           <style>
             {`
               @keyframes slideInDown {
@@ -856,7 +861,6 @@ function Landingpage() {
           </style>
         </div>
         
-        {/* Simple back button at bottom */}
         <div style={{
           position: "absolute",
           bottom: 20,
