@@ -78,14 +78,13 @@ function Landingpage() {
   }, []);
 
   useEffect(() => {
-    // Only run the swing animation if we're NOT in mobile detail view
     if (!mobileSelectedItem) {
       const interval = setInterval(() => {
         setSwingProgress((prev) => prev + 0.01);
       }, 16);
       return () => clearInterval(interval);
     }
-  }, [mobileSelectedItem]); // Add dependency to stop when detail view is open
+  }, [mobileSelectedItem]);
 
   const handleDotClick = () => {
     if (isAnimating) return;
@@ -118,9 +117,8 @@ function Landingpage() {
   };
 
   function getItemTransform(progress, index) {
-  // Fixed positions for perfect alignment
   const positions = [
-    { x: 50, y: -350 },    // Top-center
+    { x: 80, y: -350 },    // Top-center
     { x: -80, y: -200 }, // Middle left
     { x: 50, y: -180 },  // Middle right  
     { x: -130, y: -40 },  // Bottom left
@@ -128,15 +126,9 @@ function Landingpage() {
   ];
   
   const pos = positions[index];
-  
-  // Direct translation without complex calculations
   const translateX = pos.x * progress;
   const translateY = pos.y * progress;
-
-  // Minimal consistent swing
   const swing = Math.sin(swingProgress * 10) * 1.5;
-
-  // Consistent scaling
   const scale = 1.0 + progress * 0.2;
 
   return `translate(${translateX}px, ${translateY}px) rotate(${swing}deg) scale(${scale})`;
@@ -153,7 +145,6 @@ function Landingpage() {
     };
   }
 
-  // Mobile Item Detail Component
   const MobileItemDetail = ({ item, onBack, onItemClick }) => {
     return (
       <div style={mobileItemDetailStyle}>
@@ -248,52 +239,6 @@ function Landingpage() {
     width: "200px",
     height: "200px",
     objectFit: "contain",
-  };
-
-  const mobileDetailInfo = {
-    padding: "0 24px 24px",
-    borderBottom: "1px solid #e5d9a8",
-  };
-
-  const mobileDetailItemTitle = {
-    fontFamily: "Aboreto, sans-serif",
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#211915",
-    margin: "0 0 8px",
-  };
-
-  const mobileDetailCategory = {
-    fontSize: 14,
-    color: "#666",
-    margin: "0 0 16px",
-    fontWeight: "500",
-  };
-
-  const mobileDetailDescription = {
-    fontSize: 16,
-    color: "#333",
-    lineHeight: 1.5,
-    margin: "0 0 20px",
-  };
-
-  const mobileDetailPrice = {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#211915",
-    margin: "0 0 20px",
-  };
-
-  const mobileAddToCartButton = {
-    width: "100%",
-    padding: "16px",
-    background: "#211915",
-    color: "white",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
   };
 
   const mobileOtherProducts = {
@@ -655,239 +600,305 @@ function Landingpage() {
   // DESKTOP VIEW
   return (
     <div style={landingPageStyle}>
-      <img src={logo} alt="Logo" style={logoStyle} />
-      <div
-        style={{
-          position: "absolute",
-          top: 28,
-          right: 40,
-          display: "flex",
-          gap: 20,
-        }}
-      >
+  <img src={logo} alt="Logo" style={logoStyle} />
+  <div
+    style={{
+      position: "absolute",
+      top: 28,
+      right: 40,
+      display: "flex",
+      gap: 20,
+    }}
+  >
+    <img
+      src={SearchIcon}
+      alt="Search"
+      style={{ width: 24, cursor: "pointer" }}
+    />
+    <img
+      src={menuIcon}
+      alt="Menu"
+      style={{ width: 24, cursor: "pointer" }}
+    />
+  </div>
+
+  {!selectedItem && (
+    <div style={contentStyle}>
+      <h1 style={headingStyle}>Flavor Meets</h1>
+      <h1 style={headingStyle}>Freshness</h1>
+      <div style={subheadingStyle}>
+        <p>
+          Discover a wide range of delicious food products made with love
+        </p>
+        <p>and quality ingredients. Taste freshness in every bite.</p>
+        <p>Find your favorite and treat yourself today.</p>
+      </div>
+      <div style={scrollContainerStyle}>
+        <div style={{ display: "inline-flex", alignItems: "flex-start" }}>
+          {items.map((item, index) => (
+            <div key={index} style={cardWrapperStyle}>
+              <ItemCard
+                image={item.image}
+                title={item.title}
+                description={item.description}
+                onClick={() => setSelectedItem(item)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {selectedItem && (
+    <div style={selectedLayoutWrapper}>
+      <div style={bigImageContainer}>
+        <h2
+          style={{
+            fontSize: "2.2rem",
+            marginBottom: 10,
+            textAlign: "left",
+            opacity: 0,
+            transform: "translateY(-20px)",
+            animation: "slideInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards",
+          }}
+        >
+          {selectedItem.title}
+        </h2>
+        <p style={{ 
+          maxWidth: 400, 
+          fontSize: "1rem", 
+          lineHeight: 1.6,
+          opacity: 0,
+          transform: "translateY(-20px)",
+          animation: "slideInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards",
+        }}>
+          {selectedItem.description}
+        </p>
         <img
-          src={SearchIcon}
-          alt="Search"
-          style={{ width: 24, cursor: "pointer" }}
-        />
-        <img
-          src={menuIcon}
-          alt="Menu"
-          style={{ width: 24, cursor: "pointer" }}
+          src={selectedItem.image}
+          alt={selectedItem.title}
+          style={{
+            ...bigImageStyle,
+            opacity: 0,
+            transform: "translateY(-20px) scale(0.95)",
+            animation: "slideInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards",
+          }}
         />
       </div>
-
-      {!selectedItem && (
-        <div style={contentStyle}>
-          <h1 style={headingStyle}>Flavor Meets</h1>
-          <h1 style={headingStyle}>Freshness</h1>
-          <div style={subheadingStyle}>
-            <p>
-              Discover a wide range of delicious food products made with love
-            </p>
-            <p>and quality ingredients. Taste freshness in every bite.</p>
-            <p>Find your favorite and treat yourself today.</p>
-          </div>
-          <div style={scrollContainerStyle}>
-            <div style={{ display: "inline-flex", alignItems: "flex-start" }}>
-              {items.map((item, index) => (
-                <div key={index} style={cardWrapperStyle}>
-                  <ItemCard
-                    image={item.image}
-                    title={item.title}
-                    description={item.description}
-                    onClick={() => setSelectedItem(item)}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "row",
+          marginTop: 40,
+          position: "relative",
+        }}
+      >
+        {/* Simple scrollable grid container */}
+        <div
+          className="scrollable-column"
+          style={{
+            flex: 1,
+            display: "grid",
+            gridTemplateColumns: "calc(50% - 15px) calc(50% - 15px)",
+            gap: "30px 30px",
+            paddingTop: 60,
+            paddingLeft: 20,
+            paddingRight: 20,
+            paddingBottom: 80, // Extra padding for back button
+            maxHeight: "calc(100vh - 200px)",
+            overflowY: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            alignContent: "start",
+            justifyItems: "stretch",
+            position: "relative",
+          }}
+          onScroll={(e) => {
+            const gridItems = Array.from(e.currentTarget.querySelectorAll('.grid-item'));
+            const containerRect = e.currentTarget.getBoundingClientRect();
+            const containerCenter = containerRect.top + (containerRect.height / 2);
+            
+            gridItems.forEach((item) => {
+              const itemRect = item.getBoundingClientRect();
+              const itemCenter = itemRect.top + (itemRect.height / 2);
+              const distanceFromCenter = Math.abs(itemCenter - containerCenter);
+              const maxDistance = containerRect.height / 2;
+              
+              // Simple scale effect
+              const scale = 1 - (distanceFromCenter / maxDistance) * 0.1;
+              
+              item.style.transform = `scale(${Math.max(scale, 0.9)})`;
+            });
+          }}
+        >
+          {/* Hide scrollbar for Chrome/Safari */}
+          <style>
+            {`
+              .scrollable-column::-webkit-scrollbar {
+                display: none;
+              }
+            `}
+          </style>
+          
+          {/* All items in a grid - duplicates included */}
+          {[...items, ...items, ...items]
+            .filter((i) => i.title !== selectedItem.title)
+            .map((item, index) => {
+              // Staggered animation
+              const animationDelay = 0.4 + Math.min(index * 0.05, 0.6);
+              
+              return (
+                <div
+                  key={`grid-${item.title}-${index}`}
+                  className="grid-item"
+                  onClick={() => setSelectedItem(item)}
+                  style={{
+                    width: "100%",
+                    height: 200,
+                    borderRadius: 30,
+                    background: "#fff",
+                    padding: "30px 20px",
+                    position: "relative",
+                    boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
+                    cursor: "pointer",
+                    opacity: 0,
+                    transform: "translateY(40px) scale(0.95)",
+                    animation: `slideInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${animationDelay}s forwards`,
+                    border: "1px solid rgba(0,0,0,0.05)",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.05)";
+                    e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.boxShadow = "0 15px 30px rgba(0,0,0,0.1)";
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    style={{
+                      width: 110,
+                      position: "absolute",
+                      top: -40,
+                      left: 50,
+                      transition: "transform 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
                   />
+                  <div style={{ marginTop: 40 }}>
+                    <h3
+                      style={{
+                        margin: 0,
+                        fontSize: "1.3rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p
+                      style={{
+                        margin: "6px 0",
+                        color: "#555",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {item.category}
+                    </p>
+                    <h3 style={{ marginTop: 10, fontSize: "1.2rem", color: "#e44d26" }}>
+                      {item.price}
+                    </h3>
+                  </div>
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: 20,
+                      right: 20,
+                      fontSize: 22,
+                    }}
+                  >
+                    🤍
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+              );
+            })}
+          
+          {/* CSS animations */}
+          <style>
+            {`
+              @keyframes slideInDown {
+                from {
+                  opacity: 0;
+                  transform: translateY(-20px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+              
+              @keyframes slideInUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(40px) scale(0.95);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0) scale(1);
+                }
+              }
+            `}
+          </style>
         </div>
-      )}
-
-      {selectedItem && (
-        <div style={selectedLayoutWrapper}>
-          <div style={bigImageContainer}>
-            <h2
-              style={{
-                fontSize: "2.2rem",
-                marginBottom: 10,
-                textAlign: "left",
-              }}
-            >
-              {selectedItem.title}
-            </h2>
-            <p style={{ maxWidth: 400, fontSize: "1rem", lineHeight: 1.6 }}>
-              {selectedItem.description}
-            </p>
-            <img
-              src={selectedItem.image}
-              alt={selectedItem.title}
-              style={bigImageStyle}
-            />
-          </div>
-          <div
+        
+        {/* Simple back button at bottom */}
+        <div style={{
+          position: "absolute",
+          bottom: 20,
+          right: 20,
+          zIndex: 100,
+        }}>
+          <button 
+            onClick={() => setSelectedItem(null)}
             style={{
-              flex: 1,
+              background: "#fff",
+              border: "none",
+              cursor: "pointer",
+              padding: "12px",
+              borderRadius: "50%",
               display: "flex",
-              flexDirection: "row",
-              gap: 30,
-              marginTop: 40,
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.3s ease",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "rotate(180deg)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "rotate(0)";
+              e.currentTarget.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
             }}
           >
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: 60,
-                paddingTop: 60,
-              }}
-            >
-              {items
-                .filter((i) => i.title !== selectedItem.title)
-                .filter((_, idx) => idx % 2 === 0)
-                .map((item, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedItem(item)}
-                    style={{
-                      width: "100%",
-                      height: 200,
-                      borderRadius: 30,
-                      background: "#fff",
-                      padding: "30px 20px",
-                      position: "relative",
-                      boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      style={{
-                        width: 110,
-                        position: "absolute",
-                        top: -40,
-                        left: 50,
-                      }}
-                    />
-                    <div style={{ marginTop: 40 }}>
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontSize: "1.3rem",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {item.title}
-                      </h3>
-                      <p
-                        style={{
-                          margin: "6px 0",
-                          color: "#555",
-                          fontSize: "1rem",
-                        }}
-                      >
-                        Mix Vegetables
-                      </p>
-                      <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>
-                        $24.00
-                      </h3>
-                    </div>
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: 20,
-                        right: 20,
-                        fontSize: 22,
-                      }}
-                    >
-                      🤍
-                    </span>
-                  </div>
-                ))}
-            </div>
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: 60,
-                paddingBottom: 0,
-              }}
-            >
-              {items
-                .filter((i) => i.title !== selectedItem.title)
-                .filter((_, idx) => idx % 2 === 1)
-                .map((item, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedItem(item)}
-                    style={{
-                      width: "100%",
-                      height: 200,
-                      borderRadius: 30,
-                      background: "#fff",
-                      padding: "30px 20px",
-                      position: "relative",
-                      boxShadow: "0 15px 30px rgba(0,0,0,0.1)",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      style={{
-                        width: 110,
-                        position: "absolute",
-                        top: -40,
-                        left: 50,
-                      }}
-                    />
-                    <div style={{ marginTop: 40 }}>
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontSize: "1.3rem",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {item.title}
-                      </h3>
-                      <p
-                        style={{
-                          margin: "6px 0",
-                          color: "#555",
-                          fontSize: "1rem",
-                        }}
-                      >
-                        Mix Vegetables
-                      </p>
-                      <h3 style={{ marginTop: 10, fontSize: "1.2rem" }}>
-                        $24.00
-                      </h3>
-                    </div>
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: 20,
-                        right: 20,
-                        fontSize: 22,
-                      }}
-                    >
-                      🤍
-                    </span>
-                  </div>
-                ))}
-              <button onClick={() => setSelectedItem(null)}>
-                <img style={{ width: 50, marginLeft: 50 }} src={Down} />
-              </button>
-            </div>
-          </div>
+            <img 
+              style={{ 
+                width: 20,
+              }} 
+              src={Down} 
+              alt="Back"
+            />
+          </button>
         </div>
-      )}
+      </div>
     </div>
+  )}
+</div>
   );
 }
 

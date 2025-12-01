@@ -13,17 +13,17 @@ function ItemCard({ image, title, description, onClick }: any) {
       paddingLeft: 20,
       paddingRight: 20,
       background: hover
-        ? "#FF5420" // orange glass effect
-        : "#C4C4C466", // default glass gray
+        ? "#FF5420"
+        : "#C4C4C466", 
       backdropFilter: "blur(10px)",
       boxShadow: hover
-        ? "0 12px 30px rgba(255, 153, 51, 0.4)" // glowing orange shadow
+        ? "0 12px 30px rgba(255, 153, 51, 0.4)" 
         : "0 8px 20px rgba(0, 0, 0, 0.15)",
       textAlign: "center",
       display: "flex",
       flexDirection: "column",
       transition: "0.3s ease",
-      transform: hover ? "scale(1.1)" : "scale(1)", // ZOOM EFFECT
+      transform: hover ? "scale(1.1)" : "scale(1)",
       color: hover ? "white" : "black",
       cursor: "pointer",
       overflow: "visible",
@@ -57,7 +57,7 @@ function ItemCard({ image, title, description, onClick }: any) {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
-      alignItems: "stretch", // <-- changed from center
+      alignItems: "stretch", 
       padding: "0 10px",
       color: hover ? "white" : "black",
     },
@@ -68,9 +68,9 @@ function ItemCard({ image, title, description, onClick }: any) {
       marginBottom: 20,
       padding: "0 6px",
       color: hover ? "white" : "black",
-      wordWrap: "break-word", // ensures long words wrap
-      whiteSpace: "normal", // allows normal wrapping
-      textAlign: "center", // optional: keep centered text
+      wordWrap: "break-word", 
+      whiteSpace: "normal",
+      textAlign: "center", 
     },
 
     button: {
